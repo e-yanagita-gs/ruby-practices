@@ -42,6 +42,9 @@ print "\n"
 start_day = 1
 start_day_w = Date.new(params[:y],params[:m],1).wday #１日の曜日を取得
 print start_day.to_s.rjust(3*start_day_w+2) + " " 
+if start_day_w == 6
+  print "\n"
+end
 
 #指定月の２日～最終日のカレンダーを作成
 start_day += 1
