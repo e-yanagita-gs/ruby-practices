@@ -15,11 +15,20 @@ opt.on('-y YEAR', Integer)  { |v| v }
 opt.parse!(ARGV, into: params)
 
 # 引数がない場合、今日の月・年を取得
+today = Date.today
 if params.empty?
-  params = {}
-  today = Date.today
   params[:m] = today.month
   params[:y] = today.year
+elsif params[:m].nil?
+  params[:m] = today.month
+elsif params[:y].nil?
+  params[:y] = today.year
+end
+
+# 引数入力のエラーメッセージ表示
+if params[:m] < 1 || params[:m] > 12
+  print 'そのような月は存在しません'
+  exit
 end
 
 # 見出し：年・月・曜日の表示
