@@ -16,14 +16,8 @@ opt.parse!(ARGV, into: params)
 
 # 引数がない場合、今日の月・年を取得
 today = Date.today
-if params.empty?
-  params[:m] = today.month
-  params[:y] = today.year
-elsif params[:m].nil?
-  params[:m] = today.month
-elsif params[:y].nil?
-  params[:y] = today.year
-end
+params[:m] = today.month if params[:m].nil?
+params[:y] = today.year if params[:y].nil?
 
 # 引数入力のエラーメッセージ表示
 if params[:m] < 1 || params[:m] > 12
