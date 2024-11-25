@@ -16,9 +16,7 @@ def output_files(file_names, cols = 3)
 
   # 作成した配列にファイル名を割り当てていく
   file_names.each_with_index do |file, index|
-    row = index % rows
-    col = index / rows
-    matrix_file_names[row][col] = file
+    matrix_file_names[index.divmod(rows)[1]][index.divmod(rows)[0]] = file
   end
 
   # 各列の最大長を計算
