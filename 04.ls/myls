@@ -16,11 +16,7 @@ def judge_options
 end
 
 def list_files(options)
-  if options[:a]
-    Dir.glob('*', File::FNM_DOTMATCH)
-  else
-    Dir.glob('*')
-  end
+  options[:a] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
 end
 
 def output_files(file_names, cols = 3)
