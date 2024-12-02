@@ -17,7 +17,7 @@ end
 
 def list_files(options)
   flags = options['a'] ? File::FNM_DOTMATCH : 0
-  files_in_current_path = Dir.glob('*', flags)
+  Dir.glob('*', flags)
 end
 
 def output_files(file_names, cols = 3)
