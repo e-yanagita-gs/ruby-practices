@@ -16,7 +16,8 @@ def judge_options
 end
 
 def list_files(options)
-  options[:a] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
+  flags = options['a'] ? File::FNM_DOTMATCH : 0
+  files_in_current_path = Dir.glob('*', flags)
 end
 
 def output_files(file_names, cols = 3)
