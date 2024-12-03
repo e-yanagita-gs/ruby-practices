@@ -1,12 +1,23 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'optparse'
+
 def main
-  output_files(list_files)
+  output_files(list_files(judge_options))
 end
 
-def list_files
-  Dir.glob('*')
+def judge_options
+  opt = OptionParser.new
+  options = {}
+  opt.on('-a') { options[:a] = true }
+  opt.parse!(ARGV)
+  options
+end
+
+def list_files(options)
+  flags = options['a'] ? File::FNM_DOTMATCH : 0
+  Dir.glob('*', flags)
 end
 
 def output_files(file_names, cols = 3)
