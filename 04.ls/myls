@@ -10,14 +10,13 @@ end
 def judge_options
   opt = OptionParser.new
   options = {}
-  opt.on('-a') { options[:a] = true }
+  opt.on('-r') { options[:r] = true }
   opt.parse!(ARGV)
   options
 end
 
 def list_files(options)
-  flags = options['a'] ? File::FNM_DOTMATCH : 0
-  Dir.glob('*', flags)
+  options[:r] ? Dir.glob('*').reverse : Dir.glob('*')
 end
 
 def output_files(file_names, cols = 3)
