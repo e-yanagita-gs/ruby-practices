@@ -2,24 +2,94 @@
 # frozen_string_literal: true
 
 require 'optparse'
+require 'etc'
 
 def main
-  output_files(list_files(judge_options))
+  options = judge_options
+  if options[:l]
+    output_files_l(list_files)
+  else
+    output_files_default(list_files)
+  end
 end
 
 def judge_options
   opt = OptionParser.new
   options = {}
-  opt.on('-r') { options[:r] = true }
+  opt.on('-l') { options[:l] = true }
   opt.parse!(ARGV)
   options
 end
 
-def list_files(options)
-  options[:r] ? Dir.glob('*').reverse : Dir.glob('*')
+def list_files
+  Dir.glob('*')
 end
 
-def output_files(file_names, cols = 3)
+def get_file_info(file)
+  stat = File.stat(file)
+  {
+    name: file,
+    type: stat.ftype,
+    size: stat.size,
+    mode: format('%o', stat.mode & 0o777),
+    nlink: stat.nlink,
+    owner: Etc.getpwuid(stat.uid).name,
+    group: Etc.getgrgid(stat.gid).name,
+    mtime: stat.mtime
+  }
+end
+
+def judge_permission(file_mode)
+  command = {
+    0 => '---',
+    1 => '--x',
+    2 => '-w-',
+    3 => '-wx',
+    4 => 'r--',
+    5 => 'r-x',
+    6 => 'rw-',
+    7 => 'rwx'
+  }
+  file_mode.chars.map { |char| command[char.to_i] }.join
+end
+
+def format_file_info(info, max_owner_length, max_group_length)
+  type = info[:type] == 'file' ? '-' : info[:type][0]
+  permissions = judge_permission(info[:mode])
+  nlink = info[:nlink]
+  owner = info[:owner].ljust(max_owner_length)
+  group = info[:group].ljust(max_group_length)
+  size = info[:size].to_s.rjust(4)
+  mtime = info[:mtime]
+  name = info[:name]
+
+  month = mtime.strftime('%m').to_i.to_s.rjust(2)
+  day = mtime.strftime('%d').to_i.to_s.rjust(2)
+  time = mtime.strftime('%H:%M')
+  formatted_mtime = "#{month}月 #{day} #{time}"
+
+  "#{type}#{permissions} #{nlink} #{owner} #{group} #{size} #{formatted_mtime} #{name}"
+end
+
+def output_files_l(files)
+  # ブロック数の合計を出力
+  blocks = files.map { |file| File.stat(file).blocks }
+  puts "合計 #{blocks.sum / 2}"
+
+  # ファイルの情報を取得
+  file_info = files.map { |file| get_file_info(file) }
+
+  # ownerとgroupの最大長を計算
+  max_owner_length = file_info.map { |info| info[:owner].length }.max
+  max_group_length = file_info.map { |info| info[:group].length }.max
+
+  # ファイルの詳細を出力
+  file_info.each do |info|
+    puts format_file_info(info, max_owner_length, max_group_length)
+  end
+end
+
+def output_files_default(file_names, cols = 3)
   # 要件を満たすための行数を求め、行列形式の配列をつくる（row:行,col:列）
   rows = (file_names.size % cols).zero? ? file_names.size / cols : file_names.size / cols + 1
   matrix_file_names = Array.new(rows) { Array.new(cols) }
