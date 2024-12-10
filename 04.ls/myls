@@ -4,16 +4,27 @@
 require 'optparse'
 require 'etc'
 
+PERMISSION_COMMAND = {
+  0 => '---',
+  1 => '--x',
+  2 => '-w-',
+  3 => '-wx',
+  4 => 'r--',
+  5 => 'r-x',
+  6 => 'rw-',
+  7 => 'rwx'
+}.freeze
+
 def main
-  options = judge_options
+  options = fetch_options
   if options[:l]
-    output_files_l(list_files)
+    output_files_in_long_format(list_files)
   else
     output_files_default(list_files)
   end
 end
 
-def judge_options
+def fetch_options
   opt = OptionParser.new
   options = {}
   opt.on('-l') { options[:l] = true }
@@ -39,23 +50,13 @@ def get_file_info(file)
   }
 end
 
-def judge_permission(file_mode)
-  command = {
-    0 => '---',
-    1 => '--x',
-    2 => '-w-',
-    3 => '-wx',
-    4 => 'r--',
-    5 => 'r-x',
-    6 => 'rw-',
-    7 => 'rwx'
-  }
-  file_mode.chars.map { |char| command[char.to_i] }.join
+def fetch_permission(file_mode)
+  file_mode.chars.map { |char| PERMISSION_COMMAND[char.to_i] }.join
 end
 
 def format_file_info(info, max_owner_length, max_group_length)
   type = info[:type] == 'file' ? '-' : info[:type][0]
-  permissions = judge_permission(info[:mode])
+  permissions = fetch_permission(info[:mode])
   nlink = info[:nlink]
   owner = info[:owner].ljust(max_owner_length)
   group = info[:group].ljust(max_group_length)
@@ -71,20 +72,20 @@ def format_file_info(info, max_owner_length, max_group_length)
   "#{type}#{permissions} #{nlink} #{owner} #{group} #{size} #{formatted_mtime} #{name}"
 end
 
-def output_files_l(files)
-  # ブロック数の合計を出力
+def fetch_blocks(files)
   blocks = files.map { |file| File.stat(file).blocks }
-  puts "合計 #{blocks.sum / 2}"
+  blocks.sum / 2
+end
 
-  # ファイルの情報を取得
-  file_info = files.map { |file| get_file_info(file) }
+def output_files_in_long_format(files)
+  puts "合計　#{fetch_blocks(files)}"
 
-  # ownerとgroupの最大長を計算
-  max_owner_length = file_info.map { |info| info[:owner].length }.max
-  max_group_length = file_info.map { |info| info[:group].length }.max
+  file_infos = files.map { |file| get_file_info(file) }
 
-  # ファイルの詳細を出力
-  file_info.each do |info|
+  max_owner_length = file_infos.map { |info| info[:owner].length }.max
+  max_group_length = file_infos.map { |info| info[:group].length }.max
+
+  file_infos.each do |info|
     puts format_file_info(info, max_owner_length, max_group_length)
   end
 end
