@@ -51,7 +51,7 @@ def get_file_info(file)
 end
 
 def fetch_permission(file_mode)
-  file_mode.chars.map { |char| PERMISSION_COMMAND[char.to_i] }.join
+  file_mode.chars.map { |char| PERMISSION[char.to_i] }.join
 end
 
 def format_file_info(info, max_owner_length, max_group_length)
