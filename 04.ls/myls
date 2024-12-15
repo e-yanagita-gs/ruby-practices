@@ -78,7 +78,7 @@ def fetch_blocks(files)
 end
 
 def output_files_in_long_format(files)
-  puts "合計　#{fetch_blocks(files)}"
+  puts "合計 #{fetch_blocks(files)}"
 
   file_infos = files.map { |file| get_file_info(file) }
 
