@@ -18,22 +18,25 @@ PERMISSION = {
 def main
   options = fetch_options
   if options[:l]
-    output_files_in_long_format(list_files)
+    output_files_in_long_format(list_files(options))
   else
-    output_files_default(list_files)
+    output_files_default(list_files(options))
   end
 end
 
 def fetch_options
   opt = OptionParser.new
   options = {}
+  opt.on('-a') { options[:a] = true }
+  opt.on('-r') { options[:r] = true }
   opt.on('-l') { options[:l] = true }
   opt.parse!(ARGV)
   options
 end
 
-def list_files
-  Dir.glob('*')
+def list_files(options)
+  flags = options[:a] ? File::FNM_DOTMATCH : 0
+  options[:r] ? Dir.glob('*', flags).reverse : Dir.glob('*', flags)
 end
 
 def get_file_info(file)
@@ -54,10 +57,10 @@ def fetch_permission(file_mode)
   file_mode.chars.map { |char| PERMISSION[char.to_i] }.join
 end
 
-def format_file_info(info, max_owner_length, max_group_length)
+def format_file_info(info, max_nlink_length, max_owner_length, max_group_length)
   type = info[:type] == 'file' ? '-' : info[:type][0]
   permissions = fetch_permission(info[:mode])
-  nlink = info[:nlink]
+  nlink = info[:nlink].to_s.rjust(max_nlink_length)
   owner = info[:owner].ljust(max_owner_length)
   group = info[:group].ljust(max_group_length)
   size = info[:size].to_s.rjust(4)
@@ -82,11 +85,12 @@ def output_files_in_long_format(files)
 
   file_infos = files.map { |file| get_file_info(file) }
 
+  max_nlink_length = file_infos.map { |info| info[:nlink].to_s.length }.max
   max_owner_length = file_infos.map { |info| info[:owner].length }.max
   max_group_length = file_infos.map { |info| info[:group].length }.max
 
   file_infos.each do |info|
-    puts format_file_info(info, max_owner_length, max_group_length)
+    puts format_file_info(info, max_nlink_length, max_owner_length, max_group_length)
   end
 end
 
