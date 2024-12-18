@@ -18,9 +18,9 @@ PERMISSION = {
 def main
   options = fetch_options
   if options[:l]
-    output_files_in_long_format(list_files(options))
+    output_files_in_long_format(list_files(options[:a], options[:r]))
   else
-    output_files_default(list_files(options))
+    output_files_default(list_files(options[:a], options[:r]))
   end
 end
 
@@ -34,9 +34,9 @@ def fetch_options
   options
 end
 
-def list_files(options)
-  flags = options[:a] ? File::FNM_DOTMATCH : 0
-  options[:r] ? Dir.glob('*', flags).reverse : Dir.glob('*', flags)
+def list_files(list_all, reversed)
+  flags = list_all ? File::FNM_DOTMATCH : 0
+  reversed ? Dir.glob('*', flags).reverse : Dir.glob('*', flags)
 end
 
 def get_file_info(file)
