@@ -1,0 +1,96 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+
+def main
+  options = fetch_options
+  input_source = ARGV.empty? ? { 'stdin' => ARGF.read } : read_files(ARGV)
+  counts = analyze_content(input_source)
+  output(counts, input_source.keys, options)
+end
+
+def fetch_options
+  opt = OptionParser.new
+  options = { l: false, w: false, c: false }
+  opt.on('-l') { options[:l] = true }
+  opt.on('-w') { options[:w] = true }
+  opt.on('-c') { options[:c] = true }
+  opt.parse!(ARGV)
+  options[:l] = options[:w] = options[:c] = true if options.values.all?(false)
+  options
+end
+
+def read_files(file_paths)
+  file_paths.to_h { |file_path| [file_path, File.read(file_path)] }
+end
+
+def analyze_content(contents)
+  counts = { lines: {}, words: {}, byte_size: {} }
+  contents.each do |name, content|
+    counts[:lines][name] = content.lines.size - (content.end_with?("\n") ? 0 : 1)
+    counts[:words][name] = content.split(/\s+/).size
+    counts[:byte_size][name] = content.bytesize
+  end
+  counts
+end
+
+def count_max_length(counts)
+  counts.values.flat_map(&:values).map { |value| value.to_s.length }.max
+end
+
+def selected_keys(options)
+  keys = []
+  keys << :lines if options[:l]
+  keys << :words if options[:w]
+  keys << :byte_size if options[:c]
+  keys
+end
+
+def prepare_output_data(counts, sources, selected_keys)
+  output_data = sources.map do |source|
+    selected_keys.map { |key| counts[key][source] } + [source]
+  end
+  if sources.size > 1
+    total_data = selected_keys.map { |key| counts[key].values.sum } + ['合計']
+    output_data << total_data
+  end
+  output_data
+end
+
+def format_output_data(output_data, selected_keys, counts)
+  check_stdin = (output_data.last.last == 'stdin')
+  max_length = check_stdin ? 7 : count_max_length(counts)
+
+  output_data.each_with_index do |row, row_index|
+    row_context = {
+      row: row,
+      row_index: row_index,
+      selected_keys: selected_keys,
+      max_length: max_length,
+      check_stdin: check_stdin,
+      total_rows: output_data.size
+    }
+    formatted_row = format_row(row_context)
+    puts formatted_row
+  end
+end
+
+def format_row(context)
+  context[:row].map.with_index do |data, col|
+    if col < context[:selected_keys].size
+      alignment = context[:selected_keys].size == 1 && context[:check_stdin] ? :ljust : :rjust
+      "#{data.to_s.send(alignment, context[:max_length])} "
+    elsif !context[:check_stdin] || context[:row_index] < context[:total_rows] - 1
+      data.to_s
+    end
+  end.join
+end
+
+def output(counts, sources, options)
+  selected_keys = selected_keys(options)
+  output_data = prepare_output_data(counts, sources, selected_keys)
+  format_output_data(output_data, selected_keys, counts)
+end
+
+main
