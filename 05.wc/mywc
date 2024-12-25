@@ -25,9 +25,9 @@ def read_files(file_paths)
   file_paths.to_h { |file_path| [file_path, File.read(file_path)] }
 end
 
-def analyze_content(contents)
+def analyze_content(input_source)
   counts = { lines: {}, words: {}, byte_size: {} }
-  contents.each do |name, content|
+  input_source.each do |name, content|
     counts[:lines][name] = content.lines.size - (content.end_with?("\n") ? 0 : 1)
     counts[:words][name] = content.split(/\s+/).size
     counts[:byte_size][name] = content.bytesize
