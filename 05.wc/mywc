@@ -17,7 +17,7 @@ def fetch_options
   opt.on('-w') { options[:w] = true }
   opt.on('-c') { options[:c] = true }
   opt.parse!(ARGV)
-  options[:l] = options[:w] = options[:c] = true if options.values.all?(false)
+  options = options.transform_values { |v| true } if options.values.all?(false)
   options
 end
 
