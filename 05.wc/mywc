@@ -7,7 +7,7 @@ def main
   options = fetch_options
   input_source = ARGV.empty? ? { 'stdin' => ARGF.read } : read_files(ARGV)
   counts = analyze_content(input_source)
-  output(counts, input_source.keys, options)
+  output(counts, options)
 end
 
 def fetch_options
@@ -17,7 +17,7 @@ def fetch_options
   opt.on('-w') { options[:w] = true }
   opt.on('-c') { options[:c] = true }
   opt.parse!(ARGV)
-  options = options.transform_values { |v| true } if options.values.all?(false)
+  options = options.transform_values { true } if options.values.all?(false)
   options
 end
 
@@ -26,71 +26,72 @@ def read_files(file_paths)
 end
 
 def analyze_content(input_source)
-  counts = { lines: {}, words: {}, byte_size: {} }
-  input_source.each do |name, content|
-    counts[:lines][name] = content.lines.size - (content.end_with?("\n") ? 0 : 1)
-    counts[:words][name] = content.split(/\s+/).size
-    counts[:byte_size][name] = content.bytesize
+  input_source.map do |name, content|
+    {
+      lines: content.lines.size - (content.end_with?("\n") ? 0 : 1),
+      words: content.split(/\s+/).size,
+      byte_size: content.bytesize,
+      file_name: name
+    }
   end
-  counts
-end
-
-def count_max_length(counts)
-  counts.values.flat_map(&:values).map { |value| value.to_s.length }.max
 end
 
 def selected_keys(options)
-  keys = []
+  keys = [:file_name]
   keys << :lines if options[:l]
   keys << :words if options[:w]
   keys << :byte_size if options[:c]
   keys
 end
 
-def prepare_output_data(counts, sources, selected_keys)
-  output_data = sources.map do |source|
-    selected_keys.map { |key| counts[key][source] } + [source]
+def total(counts)
+  totals = { lines: 0, words: 0, byte_size: 0, file_name: '合計' }
+  counts.each do |count|
+    totals[:lines] += count[:lines]
+    totals[:words] += count[:words]
+    totals[:byte_size] += count[:byte_size]
   end
-  if sources.size > 1
-    total_data = selected_keys.map { |key| counts[key].values.sum } + ['合計']
-    output_data << total_data
-  end
-  output_data
+  totals
 end
 
-def format_output_data(output_data, selected_keys, counts)
-  check_stdin = (output_data.last.last == 'stdin')
-  max_length = check_stdin ? 7 : count_max_length(counts)
-
-  output_data.each_with_index do |row, row_index|
-    row_context = {
-      row: row,
-      row_index: row_index,
-      selected_keys: selected_keys,
-      max_length: max_length,
-      check_stdin: check_stdin,
-      total_rows: output_data.size
-    }
-    formatted_row = format_row(row_context)
-    puts formatted_row
+def count_max_length(counts)
+  integer_values = counts.flat_map do |count|
+    count.values.select { |v| v.is_a?(Integer) }
   end
+  integer_values.max.to_s.length
 end
 
-def format_row(context)
-  context[:row].map.with_index do |data, col|
-    if col < context[:selected_keys].size
-      alignment = context[:selected_keys].size == 1 && context[:check_stdin] ? :ljust : :rjust
-      "#{data.to_s.send(alignment, context[:max_length])} "
-    elsif !context[:check_stdin] || context[:row_index] < context[:total_rows] - 1
-      data.to_s
+def output_with_pipe(selected_counts)
+  selected_counts.last.delete(:file_name)
+  selected_counts.each do |count|
+    count.each_value do |value|
+      print count.size > 1 ? "#{value.to_s.rjust(7)} " : value
     end
-  end.join
+    puts
+  end
 end
 
-def output(counts, sources, options)
+def output_with_arguments(selected_counts, max_length)
+  selected_counts.each do |count|
+    count.each_value do |value|
+      print value.is_a?(Integer) ? "#{value.to_s.rjust(max_length)} " : value
+    end
+    puts
+  end
+end
+
+def output(counts, options)
+  counts << total(counts) if counts.size > 1
+  max_length = count_max_length(counts)
   selected_keys = selected_keys(options)
-  output_data = prepare_output_data(counts, sources, selected_keys)
-  format_output_data(output_data, selected_keys, counts)
+  selected_counts = counts.map { |count| count.select { |key, _| selected_keys.include?(key) } }
+  check_stdin = counts.last[:file_name] == 'stdin'
+
+  if check_stdin
+    output_with_pipe(selected_counts)
+  else
+    output_with_arguments(selected_counts, max_length)
+  end
 end
 
 main
