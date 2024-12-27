@@ -81,7 +81,7 @@ def output_with_arguments(selected_counts, max_length)
 end
 
 def output(counts, options)
-  counts << total(counts) if counts.size > 1
+  counts = counts + [total(counts)] if counts.size > 1
   max_length = count_max_length(counts)
   selected_keys = selected_keys(options)
   selected_counts = counts.map { |count| count.select { |key, _| selected_keys.include?(key) } }
