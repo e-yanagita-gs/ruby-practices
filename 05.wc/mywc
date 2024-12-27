@@ -5,7 +5,7 @@ require 'optparse'
 
 def main
   options = fetch_options
-  input_source = ARGV.empty? ? { 'stdin' => ARGF.read } : read_files(ARGV)
+  input_source = ARGV.empty? ? { '' => ARGF.read } : read_files(ARGV)
   counts = analyze_content(input_source)
   output(counts, options)
 end
@@ -81,10 +81,10 @@ end
 
 def output(counts, options)
   counts += [total(counts)] if counts.size > 1
-  max_length = count_max_length(counts)
+  from_stdin = counts.last[:file_name].empty?
+  max_length = from_stdin ? 7 : count_max_length(counts)
   selected_keys = selected_keys(options)
   selected_counts = counts.map { |count| count.select { |key, _| selected_keys.include?(key) } }
-  check_stdin = counts.last[:file_name] == 'stdin'
 
   if check_stdin
     output_with_pipe(selected_counts)
