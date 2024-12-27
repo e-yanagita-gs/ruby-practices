@@ -55,9 +55,8 @@ def total(counts)
 end
 
 def count_max_length(counts)
-  integer_values = counts.flat_map do |count|
-    count.values.select { |v| v.is_a?(Integer) }
-  end
+  integer_keys = %i[lines words byte_size]
+  integer_values = counts.last.select { |k, _| integer_keys.include?(k) }.values
   integer_values.max.to_s.length
 end
 
@@ -81,7 +80,7 @@ def output_with_arguments(selected_counts, max_length)
 end
 
 def output(counts, options)
-  counts = counts + [total(counts)] if counts.size > 1
+  counts += [total(counts)] if counts.size > 1
   max_length = count_max_length(counts)
   selected_keys = selected_keys(options)
   selected_counts = counts.map { |count| count.select { |key, _| selected_keys.include?(key) } }
