@@ -7,17 +7,19 @@ def main
   options = fetch_options
   input_source = ARGV.empty? ? { '' => ARGF.read } : read_files(ARGV)
   counts = analyze_content(input_source)
+  counts += [total(counts)] if counts.size > 1
   output(counts, options)
 end
 
 def fetch_options
   opt = OptionParser.new
-  options = { l: false, w: false, c: false }
-  opt.on('-l') { options[:l] = true }
-  opt.on('-w') { options[:w] = true }
-  opt.on('-c') { options[:c] = true }
+  options = { lines: false, words: false, byte_size: false }
+  opt.on('-l') { options[:lines] = true }
+  opt.on('-w') { options[:words] = true }
+  opt.on('-c') { options[:byte_size] = true }
   opt.parse!(ARGV)
   options = options.transform_values { true } if options.values.all?(false)
+  options[:file_name] = true
   options
 end
 
@@ -36,14 +38,6 @@ def analyze_content(input_source)
   end
 end
 
-def selected_keys(options)
-  keys = [:file_name]
-  keys << :lines if options[:l]
-  keys << :words if options[:w]
-  keys << :byte_size if options[:c]
-  keys
-end
-
 def total(counts)
   totals = { lines: 0, words: 0, byte_size: 0, file_name: '合計' }
   counts.each do |count|
@@ -55,42 +49,31 @@ def total(counts)
 end
 
 def count_max_length(counts)
-  integer_keys = %i[lines words byte_size]
-  integer_values = counts.last.select { |k, _| integer_keys.include?(k) }.values
+  integer_values = counts.last.select { |k, _| %i[lines words byte_size].include?(k) }.values
   integer_values.max.to_s.length
 end
 
-def output_with_pipe(selected_counts)
-  selected_counts.last.delete(:file_name)
-  selected_counts.each do |count|
-    count.each_value do |value|
-      print count.size > 1 ? "#{value.to_s.rjust(7)} " : value
-    end
-    puts
-  end
-end
+def formatted_output(counts, options, max_length, from_stdin)
+  counts.each do |count|
+    count.each do |key, value|
+      next unless options[key]
 
-def output_with_arguments(selected_counts, max_length)
-  selected_counts.each do |count|
-    count.each_value do |value|
-      print value.is_a?(Integer) ? "#{value.to_s.rjust(max_length)} " : value
+      if key == :file_name
+        print value
+      elsif from_stdin && options.values.count(true) < 3
+        print value
+      else
+        print "#{value.to_s.rjust(max_length)} "
+      end
     end
     puts
   end
 end
 
 def output(counts, options)
-  counts += [total(counts)] if counts.size > 1
   from_stdin = counts.last[:file_name].empty?
   max_length = from_stdin ? 7 : count_max_length(counts)
-  selected_keys = selected_keys(options)
-  selected_counts = counts.map { |count| count.select { |key, _| selected_keys.include?(key) } }
-
-  if check_stdin
-    output_with_pipe(selected_counts)
-  else
-    output_with_arguments(selected_counts, max_length)
-  end
+  formatted_output(counts, options, max_length, from_stdin)
 end
 
 main
