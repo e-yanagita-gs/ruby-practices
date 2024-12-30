@@ -7,7 +7,7 @@ def main
   options = parse_options
   input_source = ARGV.empty? ? { '' => ARGF.read } : read_files(ARGV)
   counts = count_content(input_source)
-  counts += [total(counts)] if counts.size > 1
+  counts += [count_total(counts)] if counts.size > 1
   output(counts, options)
 end
 
@@ -38,7 +38,7 @@ def count_content(input_source)
   end
 end
 
-def total(counts)
+def count_total(counts)
   totals = { lines: 0, words: 0, byte_size: 0, file_name: '合計' }
   counts.each do |count|
     totals[:lines] += count[:lines]
