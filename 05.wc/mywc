@@ -53,7 +53,7 @@ def count_max_length(counts)
   integer_values.max.to_s.length
 end
 
-def formatted_output(counts, options, max_length, from_stdin)
+def output_formatted_counts(counts, options, max_length, from_stdin)
   counts.each do |count|
     count.each do |key, value|
       next unless options[key]
@@ -73,7 +73,7 @@ end
 def output(counts, options)
   from_stdin = counts.last[:file_name].empty?
   max_length = from_stdin ? 7 : count_max_length(counts)
-  formatted_output(counts, options, max_length, from_stdin)
+  output_formatted_counts(counts, options, max_length, from_stdin)
 end
 
 main
