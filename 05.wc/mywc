@@ -47,8 +47,7 @@ def count_total(counts)
 end
 
 def count_max_length(counts)
-  integer_values = counts.last.select { |k, _| %i[lines words byte_size].include?(k) }.values
-  integer_values.max.to_s.length
+  counts.last.values_at(:lines, :words, :byte_size).max.to_s.length
 end
 
 def output_formatted_counts(counts, options, max_length, from_stdin)
