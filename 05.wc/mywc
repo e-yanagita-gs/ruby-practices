@@ -4,14 +4,14 @@
 require 'optparse'
 
 def main
-  options = fetch_options
+  options = parse_options
   input_source = ARGV.empty? ? { '' => ARGF.read } : read_files(ARGV)
   counts = analyze_content(input_source)
   counts += [total(counts)] if counts.size > 1
   output(counts, options)
 end
 
-def fetch_options
+def parse_options
   opt = OptionParser.new
   options = { lines: false, words: false, byte_size: false }
   opt.on('-l') { options[:lines] = true }
