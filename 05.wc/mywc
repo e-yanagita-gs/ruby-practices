@@ -6,7 +6,7 @@ require 'optparse'
 def main
   options = parse_options
   input_source = ARGV.empty? ? { '' => ARGF.read } : read_files(ARGV)
-  counts = analyze_content(input_source)
+  counts = count_content(input_source)
   counts += [total(counts)] if counts.size > 1
   output(counts, options)
 end
@@ -27,7 +27,7 @@ def read_files(file_paths)
   file_paths.to_h { |file_path| [file_path, File.read(file_path)] }
 end
 
-def analyze_content(input_source)
+def count_content(input_source)
   input_source.map do |name, content|
     {
       lines: content.lines.size - (content.end_with?("\n") ? 0 : 1),
