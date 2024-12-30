@@ -50,27 +50,26 @@ def count_max_length(counts)
   counts.last.values_at(:lines, :words, :byte_size).max.to_s.length
 end
 
-def output_formatted_counts(counts, options, max_length, from_stdin)
+def output_formatted_counts(counts, options, max_length)
   counts.each do |count|
-    count.each do |key, value|
-      next unless options[key]
-
-      if key == :file_name
-        print value
-      elsif from_stdin && options.values.count(true) < 3
-        print value
-      else
-        print "#{value.to_s.rjust(max_length)} "
-      end
+    options.each_key do |key|
+      print "#{count[key].to_s.rjust(max_length)} " if options[key]
     end
+    print count[:file_name]
     puts
   end
 end
 
 def output(counts, options)
   from_stdin = counts.last[:file_name].empty?
-  max_length = from_stdin ? 7 : count_max_length(counts)
-  output_formatted_counts(counts, options, max_length, from_stdin)
+  max_length = if counts.size == 1 && options.values.count(true) == 1
+                 0
+               elsif from_stdin
+                 7
+               else
+                 count_max_length(counts)
+               end
+  output_formatted_counts(counts, options, max_length)
 end
 
 main
