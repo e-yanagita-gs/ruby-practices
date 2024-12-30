@@ -18,9 +18,7 @@ def parse_options
   opt.on('-w') { options[:words] = true }
   opt.on('-c') { options[:byte_size] = true }
   opt.parse!(ARGV)
-  options = options.transform_values { true } if options.values.all?(false)
-  options[:file_name] = true
-  options
+  options.values.none? ? options.transform_values { true } : options
 end
 
 def read_files(file_paths)
