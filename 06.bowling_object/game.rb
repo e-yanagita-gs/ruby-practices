@@ -26,13 +26,26 @@ class Game
   end
 
   def bonus_score(frame, index)
-    bonus_count = if frame.strike?
-                    2
-                  elsif frame.spare?
-                    1
-                  else
-                    0
-                  end
-    @frames[index + 1..].flat_map(&:shots).take(bonus_count).map(&:score).sum
+    return 0 unless @frames[index + 1]
+
+    if frame.strike?
+      bonus_of_strike(index)
+    elsif frame.spare?
+      bonus_of_spare(index)
+    else
+      0
+    end
+  end
+
+  def bonus_of_strike(index)
+    if @frames[index + 1].strike? && @frames[index + 2] && index < 8
+      @frames[index + 1].shots.first.score + @frames[index + 2].shots.first.score
+    else
+      @frames[index + 1].shots.take(2).map(&:score).sum
+    end
+  end
+
+  def bonus_of_spare(index)
+    @frames[index + 1].shots.first.score
   end
 end
