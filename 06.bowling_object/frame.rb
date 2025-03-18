@@ -9,6 +9,10 @@ class Frame
     @third_shot = Shot.new(third_mark)
   end
 
+  def shots
+    [@first_shot, @second_shot, @third_shot].compact
+  end
+
   def score
     @first_shot.score + @second_shot.score + @third_shot.score
   end
