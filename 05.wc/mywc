@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+
+def main
+  options = parse_options
+  input_source = ARGV.empty? ? { '' => ARGF.read } : read_files(ARGV)
+  counts = count_content(input_source)
+  counts += [count_total(counts)] if counts.size > 1
+  output(counts, options)
+end
+
+def parse_options
+  opt = OptionParser.new
+  options = { lines: false, words: false, byte_size: false }
+  opt.on('-l') { options[:lines] = true }
+  opt.on('-w') { options[:words] = true }
+  opt.on('-c') { options[:byte_size] = true }
+  opt.parse!(ARGV)
+  options.values.none? ? options.transform_values { true } : options
+end
+
+def read_files(file_paths)
+  file_paths.to_h { |file_path| [file_path, File.read(file_path)] }
+end
+
+def count_content(input_source)
+  input_source.map do |name, content|
+    {
+      lines: content.lines.size - (content.end_with?("\n") ? 0 : 1),
+      words: content.split(/\s+/).size,
+      byte_size: content.bytesize,
+      file_name: name
+    }
+  end
+end
+
+def count_total(counts)
+  totals = { lines: 0, words: 0, byte_size: 0, file_name: '合計' }
+  counts.each do |count|
+    totals[:lines] += count[:lines]
+    totals[:words] += count[:words]
+    totals[:byte_size] += count[:byte_size]
+  end
+  totals
+end
+
+def count_max_length(counts)
+  counts.last.values_at(:lines, :words, :byte_size).max.to_s.length
+end
+
+def output_formatted_counts(counts, options, max_length)
+  counts.each do |count|
+    options.each_key do |key|
+      print "#{count[key].to_s.rjust(max_length)} " if options[key]
+    end
+    print count[:file_name]
+    puts
+  end
+end
+
+def output(counts, options)
+  from_stdin = counts.last[:file_name].empty?
+  max_length = if counts.size == 1 && options.values.count(true) == 1
+                 0
+               elsif from_stdin
+                 7
+               else
+                 count_max_length(counts)
+               end
+  output_formatted_counts(counts, options, max_length)
+end
+
+main
