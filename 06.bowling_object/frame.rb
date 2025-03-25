@@ -3,7 +3,7 @@
 require_relative 'shot'
 
 class Frame
-  def initialize(first_mark, second_mark, third_mark = nil)
+  def initialize(first_mark, second_mark = nil, third_mark = nil)
     @frame = [first_mark, second_mark, third_mark].compact.map { |mark| Shot.new(mark) }
     #@first_shot = Shot.new(first_mark)
     #@second_shot = Shot.new(second_mark)
