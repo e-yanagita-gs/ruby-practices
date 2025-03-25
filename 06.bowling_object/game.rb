@@ -26,6 +26,8 @@ class Game
     end
   end
 
+  private
+
   def bonus_score(frame, index)
     return 0 unless @frames[index + 1]
 
