@@ -9,6 +9,7 @@ class Game
     @frames = []
     while count < marks.size && @frames.size < 9
       if marks[count] == 'X'
+        #@frames << Frame.new('X', '0')
         @frames << Frame.new('X', '0')
         count += 1
       else
@@ -39,13 +40,16 @@ class Game
 
   def strike_bonus(index)
     if @frames[index + 1].strike? && @frames[index + 2] && index < 8
-      @frames[index + 1].shots.first.score + @frames[index + 2].shots.first.score
+      #@frames[index + 1].shots.first.score + @frames[index + 2].shots.first.score
+      @frames[index + 1].score(1) + @frames[index + 2].score(1)
     else
-      @frames[index + 1].shots.take(2).map(&:score).sum
+      #@frames[index + 1].shots.take(2).map(&:score).sum
+      @frames[index + 1].score(2)
     end
   end
 
   def spare_bonus(index)
-    @frames[index + 1].shots.first.score
+    #@frames[index + 1].shots.first.score
+    @frames[index + 1].score(1)
   end
 end
