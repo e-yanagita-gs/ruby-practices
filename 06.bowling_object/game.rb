@@ -37,7 +37,7 @@ class Game
     end
   end
 
-  def bonus_of_strike(index)
+  def bonus_strike(index)
     if @frames[index + 1].strike? && @frames[index + 2] && index < 8
       @frames[index + 1].shots.first.score + @frames[index + 2].shots.first.score
     else
@@ -45,7 +45,7 @@ class Game
     end
   end
 
-  def bonus_of_spare(index)
+  def bonus_spare(index)
     @frames[index + 1].shots.first.score
   end
 end
