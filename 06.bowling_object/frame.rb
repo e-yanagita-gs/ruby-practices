@@ -16,7 +16,8 @@ class Frame
   end
 =end
 
-  def score(count_shot = @frame.size)
+  #def score(count_shot = @frame.size)
+  def calc_score(count_shot = @frame.size)
     #@first_shot.score + @second_shot.score + @third_shot.score
     #@frame[0].score + @frame[1].score + @frame[2].score
     @frame.take(count_shot).sum(&:score)
@@ -28,6 +29,7 @@ class Frame
   end
 
   def spare?
-    score == 10 && !strike?
+    #@frame.score == 10 && !strike?
+    calc_score == 10 && !strike?
   end
 end
