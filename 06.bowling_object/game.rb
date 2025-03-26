@@ -10,12 +10,9 @@ class Game
     @frames = []
     while count < marks.size && @frames.size < 9
       if Shot.new(marks[count]).score == 10
-        puts "X:#{Shot.new(marks[count]).score}"
         @frames << Frame.new(10)
         count += 1
       else
-        puts marks[count]
-        puts "Shot,new(marks[count]).score: #{Shot.new(marks[count]).score}"
         @frames << Frame.new(marks[count], marks[count + 1])
         count += 2
       end
