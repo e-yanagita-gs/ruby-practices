@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'shot'
 require_relative 'frame'
 
 class Game
@@ -9,15 +8,11 @@ class Game
     count = 0
     @frames = []
     while count < marks.size && @frames.size < 9
-      if Shot.new(marks[count]).score == 10
-        @frames << Frame.new(10)
-        count += 1
-      else
-        @frames << Frame.new(marks[count], marks[count + 1])
-        count += 2
-      end
+      is_strike = Frame.new(marks[count]).strike?
+      @frames << Frame.new(*marks[count, is_strike ? 1 : 2])
+      count += is_strike ? 1 : 2
     end
-    @frames << Frame.new(marks[count], marks[count + 1], marks[count + 2])
+    @frames << Frame.new(*marks[count, 3])
   end
 
   def total_score
