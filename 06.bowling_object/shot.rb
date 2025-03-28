@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class Shot
-  def initialize(input_marks)
-    @input_marks = input_marks
+  def initialize(input_text)
+    @input_marks = input_text
   end
 
   def score

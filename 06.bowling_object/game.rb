@@ -4,8 +4,8 @@ require_relative 'shot'
 require_relative 'frame'
 
 class Game
-  def initialize(input_marks)
-    marks = input_marks.split(',')
+  def initialize(input_text)
+    marks = input_text.split(',')
     count = 0
     @frames = []
     while count < marks.size && @frames.size < 9
