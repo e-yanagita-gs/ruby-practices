@@ -2,10 +2,10 @@
 
 class Shot
   def initialize(input_text)
-    @input_marks = input_text
+    @input_text = input_text
   end
 
   def score
-    @input_marks == 'X' ? 10 : @input_marks.to_i
+    @input_text == 'X' ? 10 : @input_text.to_i
   end
 end
