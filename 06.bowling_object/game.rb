@@ -32,15 +32,15 @@ class Game
     return 0 unless @frames[index + 1]
 
     if frame.strike?
-      strike_bonus(index)
+      calc_strike_bonus(index)
     elsif frame.spare?
-      spare_bonus(index)
+      calc_spare_bonus(index)
     else
       0
     end
   end
 
-  def strike_bonus(index)
+  def calc_strike_bonus(index)
     if @frames[index + 1].strike? && @frames[index + 2] && index < 8
       @frames[index + 1].calc_score(1) + @frames[index + 2].calc_score(1)
     else
@@ -48,7 +48,7 @@ class Game
     end
   end
 
-  def spare_bonus(index)
+  def calc_spare_bonus(index)
     @frames[index + 1].calc_score(1)
   end
 end
