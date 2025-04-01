@@ -15,7 +15,7 @@ class Game
     @frames << Frame.new(*marks[count, 3])
   end
 
-  def total_score
+  def calc_total_score
     @frames.each_with_index.sum do |frame, index|
       frame.calc_score + bonus_score(frame, index)
     end
@@ -23,7 +23,7 @@ class Game
 
   private
 
-  def bonus_score(frame, index)
+  def calc_bonus_score(frame, index)
     return 0 unless @frames[index + 1]
 
     if frame.strike?
