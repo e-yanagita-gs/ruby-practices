@@ -23,33 +23,9 @@ class Game
 
   def calc_total_score
     @frames.each_with_index.sum do |frame, index|
-      frame.calc_score + calc_bonus_score(frame, index)
+      next_frame = @frames[index + 1]
+      next_next_frame = @frames[index + 2]
+      frame.calc_score + frame.calc_bonus_score(next_frame, next_next_frame, index)
     end
-  end
-
-  private
-
-  def calc_bonus_score(frame, index)
-    return 0 unless @frames[index + 1]
-
-    if frame.strike?
-      calc_strike_bonus(index)
-    elsif frame.spare?
-      calc_spare_bonus(index)
-    else
-      0
-    end
-  end
-
-  def calc_strike_bonus(index)
-    if @frames[index + 1].strike? && @frames[index + 2] && index < 8
-      @frames[index + 1].calc_score(1) + @frames[index + 2].calc_score(1)
-    else
-      @frames[index + 1].calc_score(2)
-    end
-  end
-
-  def calc_spare_bonus(index)
-    @frames[index + 1].calc_score(1)
   end
 end
