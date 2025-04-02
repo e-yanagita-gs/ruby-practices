@@ -9,16 +9,21 @@ class Game
     count = 0
     @frames = []
     while count < marks.size && @frames.size < 9
-      is_strike = Frame.new(marks[count]).strike?
-      @frames << Frame.new(*marks[count, is_strike ? 1 : 2])
-      count += is_strike ? 1 : 2
+      shot = Shot.new(marks[count])
+      if shot.strike?
+        @frames << Frame.new(shot)
+        count += 1
+      else
+        @frames << Frame.new(shot, Shot.new(marks[count + 1]))
+        count += 2
+      end
     end
-    @frames << Frame.new(*marks[count, 3])
+    @frames << Frame.new(*marks[count..].map { |mark| Shot.new(mark) })
   end
 
   def calc_total_score
     @frames.each_with_index.sum do |frame, index|
-      frame.calc_score + bonus_score(frame, index)
+      frame.calc_score + calc_bonus_score(frame, index)
     end
   end
 

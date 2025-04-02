@@ -10,6 +10,6 @@ class Shot
   end
 
   def strike?
-    @mark.score == 10
+    @mark == 'X'
   end
 end
