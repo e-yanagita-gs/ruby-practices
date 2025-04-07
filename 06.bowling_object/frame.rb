@@ -15,19 +15,21 @@ class Frame
     @shots[1..].take(count_shot).sum(&:score)
   end
 
-  def strike?
-    @shots[1].strike?
-  end
-
-  def spare?
-    calc_score == 10 && !strike?
-  end
-
   def calc_total_score(next_frame, after_next_frame)
     calc_score + calc_bonus_score(next_frame, after_next_frame)
   end
 
+  protected
+
+  def strike?
+    @shots[1].strike?
+  end
+
   private
+
+  def spare?
+    calc_score == 10 && !strike?
+  end
 
   def calc_bonus_score(next_frame, after_next_frame)
     return 0 unless next_frame
