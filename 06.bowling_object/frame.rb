@@ -19,11 +19,11 @@ class Frame
     calc_score == 10 && !strike?
   end
 
-  def calc_bonus_score(next_frame, next_next_frame, index)
+  def calc_bonus_score(next_frame, after_next_frame, index)
     return 0 unless next_frame
 
     if strike?
-      calc_strike_bonus(next_frame, next_next_frame, index)
+      calc_strike_bonus(next_frame, after_next_frame, index)
     elsif spare?
       calc_spare_bonus(next_frame)
     else
@@ -31,9 +31,9 @@ class Frame
     end
   end
 
-  def calc_strike_bonus(next_frame, next_next_frame, index)
-    if next_frame.strike? && next_next_frame && index < 8
-      next_frame.calc_score(1) + next_next_frame.calc_score(1)
+  def calc_strike_bonus(next_frame, after_next_frame, index)
+    if next_frame.strike? && after_next_frame && index < 8
+      next_frame.calc_score(1) + after_next_frame.calc_score(1)
     else
       next_frame.calc_score(2)
     end
