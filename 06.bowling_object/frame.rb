@@ -31,6 +31,8 @@ class Frame
     end
   end
 
+  private
+
   def calc_strike_bonus(next_frame, after_next_frame, index)
     if next_frame.strike? && after_next_frame && index < 8
       next_frame.calc_score(1) + after_next_frame.calc_score(1)
