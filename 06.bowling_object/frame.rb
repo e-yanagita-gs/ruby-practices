@@ -3,8 +3,8 @@
 require_relative 'shot'
 
 class Frame
-  def initialize(first_mark, second_mark = nil, third_mark = nil)
-    @shots = [first_mark, second_mark, third_mark].compact
+  def initialize(first_shot, second_shot = nil, third_shot = nil)
+    @shots = [first_shot, second_shot, third_shot].compact
   end
 
   def calc_score(count_shot = @shots.size)
