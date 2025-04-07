@@ -9,13 +9,9 @@ class Game
     count = 0
     @frames = []
     while count < shots.size && @frames.size < 9
-      if shots[count].strike?
-        @frames << Frame.new(shots[count])
-        count += 1
-      else
-        @frames << Frame.new(shots[count], shots[count + 1])
-        count += 2
-      end
+      shots_per_frame = shots[count].strike? ? 1 : 2
+      @frames << Frame.new(*shots[count, shots_per_frame])
+      count += shots_per_frame
     end
     @frames << Frame.new(*shots[count..])
   end
