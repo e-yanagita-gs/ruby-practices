@@ -5,20 +5,19 @@ require_relative 'frame'
 
 class Game
   def initialize(input_text)
-    marks = input_text.split(',')
+    shots = input_text.split(',').map { |mark| Shot.new(mark) }
     count = 0
     @frames = []
-    while count < marks.size && @frames.size < 9
-      shot = Shot.new(marks[count])
-      if shot.strike?
-        @frames << Frame.new(shot)
+    while count < shots.size && @frames.size < 9
+      if shots[count].strike?
+        @frames << Frame.new(shots[count])
         count += 1
       else
-        @frames << Frame.new(shot, Shot.new(marks[count + 1]))
+        @frames << Frame.new(shots[count], shots[count + 1])
         count += 2
       end
     end
-    @frames << Frame.new(*marks[count..].map { |mark| Shot.new(mark) })
+    @frames << Frame.new(*shots[count..])
   end
 
   def calc_total_score
