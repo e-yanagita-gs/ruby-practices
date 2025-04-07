@@ -3,27 +3,37 @@
 require_relative 'shot'
 
 class Frame
-  def initialize(first_shot, second_shot = nil, third_shot = nil)
-    @shots = [first_shot, second_shot, third_shot].compact
+  def initialize(frame_index, first_shot, second_shot = nil, third_shot = nil)
+    @shots = [frame_index, first_shot, second_shot, third_shot].compact
   end
 
-  def calc_score(count_shot = @shots.size)
-    @shots.take(count_shot).sum(&:score)
+  def frame_index
+    @shots.first
+  end
+
+  def calc_score(count_shot = @shots.size - 1)
+    @shots[1..].take(count_shot).sum(&:score)
   end
 
   def strike?
-    @shots.first.strike?
+    @shots[1].strike?
   end
 
   def spare?
     calc_score == 10 && !strike?
   end
 
-  def calc_bonus_score(next_frame, after_next_frame, index)
+  def calc_total_score(next_frame, after_next_frame)
+    calc_score + calc_bonus_score(next_frame, after_next_frame)
+  end
+
+  private
+
+  def calc_bonus_score(next_frame, after_next_frame)
     return 0 unless next_frame
 
     if strike?
-      calc_strike_bonus(next_frame, after_next_frame, index)
+      calc_strike_bonus(next_frame, after_next_frame)
     elsif spare?
       calc_spare_bonus(next_frame)
     else
@@ -31,10 +41,8 @@ class Frame
     end
   end
 
-  private
-
-  def calc_strike_bonus(next_frame, after_next_frame, index)
-    if next_frame.strike? && after_next_frame && index < 8
+  def calc_strike_bonus(next_frame, after_next_frame)
+    if next_frame.strike? && after_next_frame
       next_frame.calc_score(1) + after_next_frame.calc_score(1)
     else
       next_frame.calc_score(2)
