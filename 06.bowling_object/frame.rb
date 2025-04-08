@@ -3,12 +3,13 @@
 require_relative 'shot'
 
 class Frame
-  def initialize(frame_index, first_shot, second_shot = nil, third_shot = nil)
-    @shots = [frame_index, first_shot, second_shot, third_shot].compact
+  def initialize(index, first_shot, second_shot = nil, third_shot = nil)
+    @index = index
+    @shots = [first_shot, second_shot, third_shot].compact
   end
 
   def index
-    @shots.first
+    @index
   end
 
   def calc_total_score(next_frame, after_next_frame)
