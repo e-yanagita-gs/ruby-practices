@@ -12,7 +12,7 @@ class Frame
   end
 
   def calc_score(count_shot = @shots.size - 1)
-    @shots[1..].take(count_shot).sum(&:score)
+    @shots[1, count_shot].sum(&:score)
   end
 
   def calc_total_score(next_frame, after_next_frame)
