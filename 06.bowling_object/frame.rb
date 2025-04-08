@@ -7,7 +7,7 @@ class Frame
     @shots = [frame_index, first_shot, second_shot, third_shot].compact
   end
 
-  def frame_index
+  def index
     @shots.first
   end
 
