@@ -8,7 +8,7 @@ class Game
     shots = input_text.split(',').map { |mark| Shot.new(mark) }
     count = 0
     @frames = []
-    while count < shots.size && @frames.size < 9
+    while @frames.size < 9
       shots_per_frame = shots[count].strike? ? 1 : 2
       @frames << Frame.new(@frames.size, *shots[count, shots_per_frame])
       count += shots_per_frame
