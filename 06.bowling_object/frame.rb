@@ -17,8 +17,8 @@ class Frame
 
   protected
 
-  def calc_score(count_shot = @shots.size - 1)
-    @shots[1, count_shot].sum(&:score)
+  def calc_score(shot_count = @shots.size - 1)
+    @shots[1, shot_count].sum(&:score)
   end
 
   def strike?
