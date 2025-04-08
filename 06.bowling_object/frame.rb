@@ -11,15 +11,15 @@ class Frame
     @shots.first
   end
 
-  def calc_score(count_shot = @shots.size - 1)
-    @shots[1, count_shot].sum(&:score)
-  end
-
   def calc_total_score(next_frame, after_next_frame)
     calc_score + calc_bonus_score(next_frame, after_next_frame)
   end
 
   protected
+
+  def calc_score(count_shot = @shots.size - 1)
+    @shots[1, count_shot].sum(&:score)
+  end
 
   def strike?
     @shots[1].strike?
