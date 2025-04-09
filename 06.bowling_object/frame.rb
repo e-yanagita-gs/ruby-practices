@@ -13,6 +13,10 @@ class Frame
     calc_score + calc_bonus_score(next_frame, after_next_frame)
   end
 
+  def last_frame?
+    @index == 9
+  end
+
   protected
 
   def calc_score(shot_count = @shots.size)
@@ -30,7 +34,7 @@ class Frame
   end
 
   def calc_bonus_score(next_frame, after_next_frame)
-    return 0 unless next_frame
+    return 0 if last_frame?
 
     if strike?
       calc_strike_bonus(next_frame, after_next_frame)
@@ -42,7 +46,7 @@ class Frame
   end
 
   def calc_strike_bonus(next_frame, after_next_frame)
-    if next_frame.strike? && after_next_frame
+    if next_frame.strike? && !next_frame.last_frame?
       next_frame.calc_score(1) + after_next_frame.calc_score(1)
     else
       next_frame.calc_score(2)
