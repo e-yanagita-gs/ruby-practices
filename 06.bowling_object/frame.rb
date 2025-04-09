@@ -13,11 +13,11 @@ class Frame
     calc_score + calc_bonus_score(next_frame, after_next_frame)
   end
 
+  protected
+
   def last_frame?
     @index == 9
   end
-
-  protected
 
   def calc_score(shot_count = @shots.size)
     @shots.take(shot_count).sum(&:score)
