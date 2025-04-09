@@ -9,8 +9,7 @@ class Frame
   end
 
   def calc_total_score(frames)
-    next_frame = frames[@index + 1]
-    after_next_frame = frames[@index + 2]
+    next_frame, after_next_frame = frames[@index + 1, 2]
     calc_score + calc_bonus_score(next_frame, after_next_frame)
   end
 
