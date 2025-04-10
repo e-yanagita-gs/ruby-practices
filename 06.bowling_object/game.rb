@@ -26,6 +26,6 @@ class Game
       frames << Frame.new(frames.size, *shots[count, shots_per_frame])
       count += shots_per_frame
     end
-    frames << Frame.new(frames.size, *shots[count..])
+    [*frames, Frame.new(frames.size, *shots[count..])]
   end
 end
