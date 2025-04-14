@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+require_relative 'display'
+
+opt = OptionParser.new
+options = {}
+opt.on('-a') { options[:a] = true }
+opt.on('-r') { options[:r] = true }
+opt.on('-l') { options[:l] = true }
+opt.parse!(ARGV)
+
+display = Display.new(options)
+display.output
