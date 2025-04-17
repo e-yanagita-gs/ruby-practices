@@ -5,7 +5,6 @@ require 'optparse'
 require_relative 'file_list_getter'
 require_relative 'file_formatter'
 
-
 opt = OptionParser.new
 options = {}
 opt.on('-a', '--all', 'Show all files including hidden files') { options[:show_all] = true }
@@ -15,5 +14,21 @@ opt.parse!(ARGV)
 
 file_list_getter = FileListGetter.new(show_all: options[:show_all], reverse: options[:reverse])
 files = file_list_getter.list_files
+
 file_formatter = FileFormatter.new(files, long_format: options[:long_format])
-file_formatter.output
+
+if options[:long_format]
+  puts "合計 #{file_formatter.format[:total_blocks]}"
+  file_formatter.format[:lines].each do |line|
+    puts line
+  end
+else
+  matrix_file_names = file_formatter.format[:matrix_file_names]
+  col_max_lengths = file_formatter.format[:col_max_lengths]
+  matrix_file_names.each do |row|
+    row.each_with_index do |file, col|
+      print file.to_s.ljust(col_max_lengths[col] + 2)
+    end
+    puts
+  end
+end

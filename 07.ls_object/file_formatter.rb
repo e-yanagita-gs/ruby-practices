@@ -6,26 +6,24 @@ class FileFormatter
   COLUMN_SIZE = 3
 
   def initialize(files, long_format: false)
-    @files = files
     @long_format = long_format
-    @file_informations = @files.map { |file| FileInformation.new(file) }
+    @file_informations = files.map { |file| FileInformation.new(file) }
   end
 
-  def output
+  def format
     if @long_format
-      output_files_in_long_format
+      format_files_in_long_format
     else
-      output_files_default
+      format_files_default
     end
   end
 
   private
 
-  def output_files_in_long_format
+  def format_files_in_long_format
     calc_max_length
-    puts "合計 #{@file_informations.map(&:block_size).sum}"
-    @file_informations.each do |file_info|
-      puts [
+    lines = @file_informations.map do |file_info|
+      [
         "#{file_info.type}#{file_info.mode}",
         file_info.nlink.to_s.rjust(@max_nlink_length),
         file_info.owner.ljust(@max_owner_length),
@@ -35,26 +33,23 @@ class FileFormatter
         file_info.name
       ].join(' ')
     end
+    { total_blocks: @file_informations.map(&:block_size).sum, lines: lines }
   end
 
-  def output_files_default
-    rows = @files.size.ceildiv(COLUMN_SIZE)
+  def format_files_default
+    file_names = @file_informations.map(&:name)
+    rows = file_names.size.ceildiv(COLUMN_SIZE)
     matrix_file_names = Array.new(rows) { Array.new(COLUMN_SIZE) }
 
-    @files.each_with_index do |file, index|
-      matrix_file_names[index.divmod(rows)[1]][index.divmod(rows)[0]] = file
+    file_names.each_with_index do |file_name, index|
+      matrix_file_names[index.divmod(rows)[1]][index.divmod(rows)[0]] = file_name
     end
 
     col_max_lengths = Array.new(COLUMN_SIZE) do |col|
       matrix_file_names.map { |row| row[col].to_s.length }.max
     end
 
-    matrix_file_names.each do |row|
-      row.each_with_index do |file, col|
-        print file.to_s.ljust(col_max_lengths[col] + 2)
-      end
-      puts
-    end
+    { matrix_file_names: matrix_file_names, col_max_lengths: col_max_lengths }
   end
 
   def calc_max_length
