@@ -2,14 +2,18 @@
 # frozen_string_literal: true
 
 require 'optparse'
+require_relative 'file_list_getter'
 require_relative 'display'
+
 
 opt = OptionParser.new
 options = {}
-opt.on('-a') { options[:a] = true }
-opt.on('-r') { options[:r] = true }
-opt.on('-l') { options[:l] = true }
+opt.on('-a', '--all', 'Show all files including hidden files') { options[:show_all] = true }
+opt.on('-r', '--reverse', 'Sort files in reverse order') { options[:reverse] = true }
+opt.on('-l', '--long', 'Display files in long format') { options[:long_format] = true }
 opt.parse!(ARGV)
 
+file_list_getter = FileListGetter.new(show_all: options[:show_all], reverse: options[:reverse])
+files = file_list_getter.list_files
 display = Display.new(options)
 display.output
