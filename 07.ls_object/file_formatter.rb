@@ -2,17 +2,17 @@
 
 require_relative 'file_information'
 
-class Display
+class FileFormatter
   COLUMN_SIZE = 3
 
-  def initialize(options)
-    @options = options
-    @files = list_files
+  def initialize(files, long_format: false)
+    @files = files
+    @long_format = long_format
     @file_informations = @files.map { |file| FileInformation.new(file) }
   end
 
   def output
-    if @options[:l]
+    if @long_format
       output_files_in_long_format
     else
       output_files_default
@@ -20,11 +20,6 @@ class Display
   end
 
   private
-
-  def list_files
-    flags = @options[:a] ? File::FNM_DOTMATCH : 0
-    @options[:r] ? Dir.glob('*', flags).reverse : Dir.glob('*', flags)
-  end
 
   def output_files_in_long_format
     calc_max_length

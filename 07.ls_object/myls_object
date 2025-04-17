@@ -3,7 +3,7 @@
 
 require 'optparse'
 require_relative 'file_list_getter'
-require_relative 'display'
+require_relative 'file_formatter'
 
 
 opt = OptionParser.new
@@ -15,5 +15,5 @@ opt.parse!(ARGV)
 
 file_list_getter = FileListGetter.new(show_all: options[:show_all], reverse: options[:reverse])
 files = file_list_getter.list_files
-display = Display.new(options)
-display.output
+file_formatter = FileFormatter.new(files, long_format: options[:long_format])
+file_formatter.output
