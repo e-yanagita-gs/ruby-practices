@@ -4,23 +4,14 @@ require_relative 'file_information'
 
 class FileFormatter
   COLUMN_SIZE = 3
+  LongFormatResult = Data.define(:result, :total)
+  DefaultFormatResult = Data.define(:result, :col_max_lengths)
 
-  def initialize(files, long_format: false)
-    @long_format = long_format
+  def initialize(files)
     @file_informations = files.map { |file| FileInformation.new(file) }
   end
 
-  def format
-    if @long_format
-      format_files_in_long_format
-    else
-      format_files_default
-    end
-  end
-
-  private
-
-  def format_files_in_long_format
+  def long_format_with_total
     calc_max_length
     lines = @file_informations.map do |file_info|
       [
@@ -33,10 +24,10 @@ class FileFormatter
         file_info.name
       ].join(' ')
     end
-    { total_blocks: @file_informations.map(&:block_size).sum, lines: lines }
+    LongFormatResult.new(lines, @file_informations.map(&:block_size).sum)
   end
 
-  def format_files_default
+  def default_format_with_max_lengths
     file_names = @file_informations.map(&:name)
     rows = file_names.size.ceildiv(COLUMN_SIZE)
     matrix_file_names = Array.new(rows) { Array.new(COLUMN_SIZE) }
@@ -48,9 +39,10 @@ class FileFormatter
     col_max_lengths = Array.new(COLUMN_SIZE) do |col|
       matrix_file_names.map { |row| row[col].to_s.length }.max
     end
-
-    { matrix_file_names: matrix_file_names, col_max_lengths: col_max_lengths }
+    DefaultFormatResult.new(matrix_file_names, col_max_lengths)
   end
+
+  private
 
   def calc_max_length
     @max_nlink_length = @file_informations.map { |file| file.nlink.to_s.length }.max

@@ -15,19 +15,19 @@ opt.parse!(ARGV)
 file_list_getter = FileListGetter.new(show_all: options[:show_all], reverse: options[:reverse])
 files = file_list_getter.list_files
 
-file_formatter = FileFormatter.new(files, long_format: options[:long_format])
+file_formatter = FileFormatter.new(files)
 
 if options[:long_format]
-  puts "合計 #{file_formatter.format[:total_blocks]}"
-  file_formatter.format[:lines].each do |line|
+  long_format_result = file_formatter.long_format_with_total
+  puts "合計 #{long_format_result.total}"
+  long_format_result.result.each do |line|
     puts line
   end
 else
-  matrix_file_names = file_formatter.format[:matrix_file_names]
-  col_max_lengths = file_formatter.format[:col_max_lengths]
-  matrix_file_names.each do |row|
+  default_format_result = file_formatter.default_format_with_max_lengths
+  default_format_result.result.each do |row|
     row.each_with_index do |file, col|
-      print file.to_s.ljust(col_max_lengths[col] + 2)
+      print file.to_s.ljust(default_format_result.col_max_lengths[col] + 2)
     end
     puts
   end
