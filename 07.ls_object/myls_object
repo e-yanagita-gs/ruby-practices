@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+require_relative 'file_list_getter'
+require_relative 'file_formatter'
+
+opt = OptionParser.new
+options = {}
+opt.on('-a', '--all', 'Show all files including hidden files') { options[:show_all] = true }
+opt.on('-r', '--reverse', 'Sort files in reverse order') { options[:reverse] = true }
+opt.on('-l', '--long', 'Display files in long format') { options[:long_format] = true }
+opt.parse!(ARGV)
+
+file_list_getter = FileListGetter.new(show_all: options[:show_all], reverse: options[:reverse])
+files = file_list_getter.list_files
+
+file_formatter = FileFormatter.new(files)
+
+if options[:long_format]
+  long_format_result = file_formatter.long_format_with_total
+  puts "合計 #{long_format_result.total}"
+  long_format_result.result.each do |line|
+    puts line
+  end
+else
+  default_format_result = file_formatter.default_format_with_max_lengths
+  default_format_result.result.each do |row|
+    row.each_with_index do |file, col|
+      print file.to_s.ljust(default_format_result.col_max_lengths[col] + 2)
+    end
+    puts
+  end
+end
